@@ -16,7 +16,7 @@ async function run() {
         return;
     }
 
-    const bannedTerms = core.getMultilineInput('banned-words').map(word => word.toLowerCase());
+    const bannedTerms = core.getMultilineInput('banned-terms').map(term => term.toLowerCase());
     if (bannedTerms.length === 0) {
         core.setFailed("No banned terms were provided, exiting.");
         return;

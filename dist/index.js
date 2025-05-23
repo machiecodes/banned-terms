@@ -31893,7 +31893,7 @@ async function run() {
         return;
     }
 
-    const bannedTerms = _actions_core__WEBPACK_IMPORTED_MODULE_1__.getMultilineInput('banned-words').map(word => word.toLowerCase());
+    const bannedTerms = _actions_core__WEBPACK_IMPORTED_MODULE_1__.getMultilineInput('banned-terms').map(term => term.toLowerCase());
     if (bannedTerms.length === 0) {
         _actions_core__WEBPACK_IMPORTED_MODULE_1__.setFailed("No banned terms were provided, exiting.");
         return;
