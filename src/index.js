@@ -2,7 +2,7 @@ import * as github from '@actions/github';
 import * as core from "@actions/core";
 
 async function run() {
-    const token = core.getInput('GITHUB_TOKEN');
+    const token = process.env.GITHUB_TOKEN;
     if (token.length === 0) {
         core.setFailed("Could not find a usable token, exiting.");
         return;
