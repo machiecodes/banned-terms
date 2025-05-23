@@ -31879,7 +31879,7 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 async function run() {
-    const token = _actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput('GITHUB_TOKEN');
+    const token = process.env.GITHUB_TOKEN;
     if (token.length === 0) {
         _actions_core__WEBPACK_IMPORTED_MODULE_1__.setFailed("Could not find a usable token, exiting.");
         return;
