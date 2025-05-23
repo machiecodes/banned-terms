@@ -26,7 +26,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          banned-words: |
+          banned-terms: |
             Forge
             Port
             Feather Client
