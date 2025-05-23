@@ -1,5 +1,5 @@
-name: "Banned Words Action"
-description: "Automatically close issues that contain certain keywords."
+name: "banned-terms"
+description: "Automatically close issues that contain certain terms."
 author: "machiecodes"
 
 branding:

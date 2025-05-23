@@ -1,17 +1,17 @@
 {
-  "name": "banned-words-action",
+  "name": "banned-terms",
   "version": "1.0.0",
-  "description": "Automatically close issues that contain certain keywords.",
+  "description": "Automatically close issues that contain certain terms.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/machiecodes/banned-words-action.git"
+    "url": "git+https://github.com/machiecodes/banned-terms.git"
   },
   "author": "machiecodes",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/machiecodes/banned-words-action/issues"
+    "url": "https://github.com/machiecodes/banned-terms/issues"
   },
-  "homepage": "https://github.com/machiecodes/banned-words-action#readme",
+  "homepage": "https://github.com/machiecodes/banned-terms#readme",
   "scripts": {
     "build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
     "test": "echo \"Error: no test specified\" && exit 1"
