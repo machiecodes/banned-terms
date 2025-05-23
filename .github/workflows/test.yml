@@ -1,0 +1,29 @@
+name: "Action Test"
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  test_action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Test Banned Terms
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          banned-words: |
+            Banana
+            Banana
+            Banana
+            Terracotta
+            Banana
+            Terracotta
+            Terracotta Pie
+          close-label: "invalid"
+
+
