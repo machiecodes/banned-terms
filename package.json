@@ -1,0 +1,19 @@
+{
+  "name": "banned-words-action",
+  "version": "1.0.0",
+  "description": "Automatically close issues that contain certain keywords.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machiecodes/banned-words-action.git"
+  },
+  "author": "machiecodes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/machiecodes/banned-words-action/issues"
+  },
+  "homepage": "https://github.com/machiecodes/banned-words-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1"
+  }
+}
