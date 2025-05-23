@@ -12,8 +12,15 @@
     "url": "https://github.com/machiecodes/banned-words-action/issues"
   },
   "homepage": "https://github.com/machiecodes/banned-words-action#readme",
+  "scripts": {
+    "build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.3"
   }
 }
