@@ -7,11 +7,6 @@ branding:
   color: red
 
 inputs:
-  GITHUB_TOKEN:
-    description: "Used to interact with the GitHub API. Typically ${{ secrets.GITHUB_TOKEN }}."
-    required: true
-    default: "${{ secrets.GITHUB_TOKEN }}"
-
   banned-terms:
     description: "Issues will be closed if they contain any of these words."
     required: true
