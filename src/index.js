@@ -1,10 +1,11 @@
 import * as github from '@actions/github';
 import * as core from "@actions/core";
+import * as fs from 'fs';
 
 async function run() {
     const token = process.env.GITHUB_TOKEN;
-    if (token.length === 0) {
-        core.setFailed("Could not find a usable token, exiting.");
+    if (!token || token.length === 0) {
+        core.setFailed("Could not find a usable Github token.");
         return;
     }
 
@@ -12,82 +13,101 @@ async function run() {
     const context = github.context;
 
     if (!context.payload.issue) {
-        core.setFailed("This action is intended to run on issue events only, skipping.");
+        core.setFailed("This action is intended to run on opened issues only.");
         return;
     }
 
-    const bannedTerms = core.getMultilineInput('banned-terms').map(term => term.toLowerCase());
-    if (bannedTerms.length === 0) {
-        core.setFailed("No banned terms were provided, exiting.");
-        return;
-    }
+    const configPath = core.getInput('config-path') || '.github/workflows/banned-terms.json';
 
-    const issueTitle = context.payload.issue.title || '';
-    const issueBody = context.payload.issue.body || '';
-    const issueText = `${issueTitle} ${issueBody}`.toLowerCase();
-
-    for (const term of bannedTerms) {
-        if (!checkTerm(issueText, term)) continue;
-
-        core.info(`Found banned term "${term}" in issue #${context.payload.issue.number}.`);
-        await closeIssue(term, octokit, context);
-        return;
-    }
-}
-
-function checkTerm(text, term) {
-    if (text.includes(term)) return true;
-    if (text.includes(term.replaceAll(' ', '-'))) return true;
-    return text.includes(term.replaceAll(' ', ''));
-}
-
-async function closeIssue(foundTerm, octokit, context) {
-    const issueNumber = context.payload.issue.number;
-    const owner = context.repo.owner;
-    const repo = context.repo.repo;
-
-    let closeMessage = `This issue is being automatically closed because it contains the 
-    term ${foundTerm}. Generally this means your issue has been answered in this project's 
-    FAQ, or is not an issue the developers wish to provide support for.\n
-    \n
-    _If you believe this issue was closed in error, you may reopen it._`
-
-    // IDE for whatever reason can't find the rest property yippee
-
+    let config;
     try {
-        await octokit.rest.issues.update({
-            owner, repo, issue_number: issueNumber, state: 'closed', state_reason: 'not_planned'
-        });
-
-        core.info('Issue closed successfully.');
+        const configContent = fs.readFileSync(configPath, 'utf8');
+        config = JSON.parse(configContent);
     } catch (error) {
-        core.setFailed(`Failed to close issue: ${error.message}`);
+        core.setFailed(`Failed to read or parse config file at ${configPath}: ${error.message}.`);
+        return;
+    }
+    
+    if (!config.rules || !Array.isArray(config.rules)) {
+        core.setFailed("Config file must contain a 'rules' array.");
         return;
     }
 
-    try {
+    const issue = context.payload.issue;
+
+    const issueTitle = issue.title.toLowerCase();
+    const issueBody = (issue.body || '').toLowerCase();
+    const issueContent = `${issueTitle} ${issueBody}`;
+
+    for (const rule of config.rules) {
+        if (!rule.terms || !Array.isArray(rule.terms)) {
+            core.warning("Skipping rule with invalid 'terms' array.");
+            continue;
+        }
+
+        for (const term of rule.terms) {
+            if (!checkTerm(issueContent, term)) continue;
+
+            core.info(`Found banned term: "${foundTerm}."`);
+            closeIssue(octokit, context, config, issue, rule.message);
+            break;
+        }
+    }
+
+    core.info("No banned terms found in issue.");
+}
+
+function checkTerm(issueBody, term) {
+    if (issueBody.includes(term.replaceAll(' ', '-'))) return true;
+    if (issueBody.includes(term.replaceAll(' ', ''))) return true;
+    return issueBody.includes(term);
+}
+
+async function closeIssue(octokit, context, config, issue, message) {
+    const { owner, repo } = context.repo;
+    const issueNumber = issue.number;
+
+    if (message) {
         await octokit.rest.issues.createComment({
-            owner, repo, issue_number: issueNumber, body: closeMessage
+            owner,
+            repo,
+            issue_number: issueNumber,
+            body: message
         });
-
-        core.info('Comment added successfully.');
-    } catch (error) {
-        core.setFailed(`Failed to add comment: ${error.message}`);
-        return;
+    } else {
+        core.warning("Corresponding rule did not contain a valid message property.")
     }
 
-    const closeLabel = core.getInput('close-label');
-    if (closeLabel.length === 0) return;
-
-    try {
+    if (config.add_label) {
         await octokit.rest.issues.addLabels({
-            owner, repo, issue_number: issueNumber, labels: [closeLabel]
+            owner,
+            repo,
+            issue_number: issueNumber,
+            labels: [config.add_label]
         });
 
-        core.info('Label added successfully.');
-    } catch (error) {
-        core.setFailed(`Failed to add label: ${error.message}`);
+        core.info(`Added label: ${config.add_label}.`);
     }
+
+    if (config.lock_conversation === true) {
+        await octokit.rest.issues.lock({
+            owner,
+            repo,
+            issue_number: issueNumber,
+            lock_reason: 'spam'
+        });
+
+        core.info("Conversation locked.");
+    }
+
+    await octokit.rest.issues.update({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        state: 'closed'
+    });
+
+    core.info("Issue closed successfully.");
 }
 
 run().catch(error => {
