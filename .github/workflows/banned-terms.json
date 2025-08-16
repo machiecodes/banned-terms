@@ -1,0 +1,14 @@
+{ 
+  "rules": [
+    {
+      "terms": ["click here", "limited time", "make money"],
+      "message": "Stop trying to scam our users."
+    },
+    {
+      "terms": ["port", "rewrite", "rust"],
+      "message": "We are not rewriting the project in rust."
+    }
+  ],
+  "add_label": "invalid",
+  "lock_conversation": false
+}

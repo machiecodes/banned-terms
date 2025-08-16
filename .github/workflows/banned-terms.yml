@@ -15,15 +15,7 @@ jobs:
         uses: ./
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          banned-terms: |
-            Banana
-            Banana
-            Banana
-            Terracotta
-            Banana
-            Terracotta
-            Terracotta Pie
-          close-label: "invalid"
+
+          
 
 
